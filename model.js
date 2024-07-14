@@ -24,7 +24,7 @@ const urlSchema=new mongoose.Schema({
       },
       clickCount: {
         type: Number,
-        default: 0
+        default: 1
       }
   });
 

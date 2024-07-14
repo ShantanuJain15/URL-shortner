@@ -12,10 +12,7 @@ server.use(express.json()); // middleware for reading JSon Object
 //connect the mongoDb 
 const connectDB = async () => {
     try {
-      await mongoose.connect(process.env.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-      });
+      await mongoose.connect(process.env.MONGODB_URI);
       console.log('MongoDB connected successfully');
     } catch (err) {
       console.error("ERROR in the connectDB() -> " + err.message);
@@ -47,12 +44,22 @@ server.post('/',async (req,res)=>{
 
 server.get("/:nanoId", async (req, res) => {
   const nanoId = req.params.nanoId;
+  try{
   const entry = await URL.findOneAndUpdate(
     {
       nanoId
+    },{
+      $inc:{clickCount: 1}
     }
   );
+  console.log(entry.clickCount);
   res.redirect(entry.originalUrl);
+}catch(err){
+
+  console.log("err in finding and update the click count : "+err);
+
+}
+ 
 });
 
 
