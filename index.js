@@ -1,7 +1,9 @@
 const express = require('express')
 const mongoose= require('mongoose')
+const path = require('path');
 const URL=require('./model.js')
 const { nanoid } = require('nanoid')
+const bodyParser = require('body-parser');
 
 require('dotenv').config()
 // console.log(process.env) 
@@ -9,6 +11,10 @@ const PORT=process.env.PORT || 5000;
 const server=express();
 
 server.use(express.json()); // middleware for reading JSon Object
+server.use(bodyParser.urlencoded({ extended: true }));//Returns middleware that only parses urlencoded bodies and
+                                                      // only looks at requests where the Content-Type header matches the type option
+// server.use(express.static(path.join(__dirname, 'view'))); i don't know the use;
+
 //connect the mongoDb 
 const connectDB = async () => {
     try {
@@ -19,11 +25,10 @@ const connectDB = async () => {
       process.exit(1); // Exit process with failure
     }
   };
-connectDB(); //connections..    
+connectDB(); //connections..
 
 server.get('/',(req,res)=>{
-
-  return res.json({check: true,nanoID : nanoid(11)});
+  return res.status(202).sendFile(path.join(__dirname, 'view', 'index.html'));
 })
 server.post('/',async (req,res)=>{
   const body = req.body;
@@ -44,6 +49,7 @@ server.post('/',async (req,res)=>{
 
 server.get("/:nanoId", async (req, res) => {
   const nanoId = req.params.nanoId;
+  console.log(nanoId);
   try{
   const entry = await URL.findOneAndUpdate(
     {
@@ -52,7 +58,8 @@ server.get("/:nanoId", async (req, res) => {
       $inc:{clickCount: 1}
     }
   );
-  console.log(entry.clickCount);
+  if(entry==null)res.sendStatus(404);
+  console.log(entry.clickCount+1);
   res.redirect(entry.originalUrl);
 }catch(err){
 
